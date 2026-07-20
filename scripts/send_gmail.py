@@ -97,8 +97,9 @@ def build_message(args: argparse.Namespace, sender: str) -> EmailMessage:
     cc_addrs = _split_addrs(args.cc)
     bcc_addrs = _split_addrs(args.bcc)
     if not (to_addrs or cc_addrs or bcc_addrs):
-        # "send it to me" with no address -> default to the owner's inbox.
-        to_addrs = [DEFAULT_TO]
+        # "send it to me" with no address -> NOTIFY_EMAIL (the project
+        # convention), else the owner's inbox.
+        to_addrs = _split_addrs(os.environ.get("NOTIFY_EMAIL")) or [DEFAULT_TO]
 
     body = args.body
     if args.body_file:
