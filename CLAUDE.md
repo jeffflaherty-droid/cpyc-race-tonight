@@ -11,15 +11,19 @@ works — the mechanism is fixed and documented here.
 (`smtp.gmail.com:465`) as **flahertyjeff6@gmail.com** — the same account the
 weekly Azure backup report is sent from.
 
-**Command:**
+**Command (script or Makefile one-liner):**
 
 ```bash
-python3 scripts/send_gmail.py \
-  --to "jeffflaherty@gmail.com" \
-  --subject "..." \
-  --body "..." \
-  [--html-file page.html] [--attach file.pdf]
+# Direct:
+python3 scripts/send_gmail.py --subject "..." --body "..." \
+  [--to a@x.com,b@y.com] [--html-file page.html] [--attach file.pdf]
+
+# Shorter, via Makefile:
+make send SUBJECT="..." BODY="..." [TO="a@x.com"] [HTML=page.html] [ATTACH=f.pdf]
+make send-dry SUBJECT="..." BODY="..."   # preview, no send
 ```
+
+If `--to`/`TO` is omitted, it defaults to `jeffflaherty@gmail.com`.
 
 **Credentials (already expected in the environment):**
 - `GMAIL_APP_PASSWORD` — 16-char Google App Password for the sender. Required.

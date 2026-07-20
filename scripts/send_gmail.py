@@ -46,6 +46,7 @@ from email.message import EmailMessage
 from pathlib import Path
 
 DEFAULT_SENDER = "flahertyjeff6@gmail.com"
+DEFAULT_TO = "jeffflaherty@gmail.com"  # used when no recipient is given
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 465  # implicit TLS
 
@@ -61,7 +62,8 @@ def build_message(args: argparse.Namespace, sender: str) -> EmailMessage:
     cc_addrs = _split_addrs(args.cc)
     bcc_addrs = _split_addrs(args.bcc)
     if not (to_addrs or cc_addrs or bcc_addrs):
-        sys.exit("error: at least one --to/--cc/--bcc recipient is required")
+        # "send it to me" with no address -> default to the owner's inbox.
+        to_addrs = [DEFAULT_TO]
 
     body = args.body
     if args.body_file:
