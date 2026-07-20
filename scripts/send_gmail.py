@@ -50,6 +50,41 @@ DEFAULT_TO = "jeffflaherty@gmail.com"  # used when no recipient is given
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 465  # implicit TLS
 
+# The App Password may already be configured in the environment under any of
+# these names (e.g. by the weekly Azure-report automation). We try them in
+# order so this "just works" with an existing secret, whatever it's called.
+PASSWORD_ENV_CANDIDATES = [
+    "GMAIL_APP_PASSWORD",
+    "GMAIL_PASSWORD",
+    "GMAIL_PASS",
+    "EMAIL_APP_PASSWORD",
+    "EMAIL_PASSWORD",
+    "EMAIL_PASS",
+    "SMTP_APP_PASSWORD",
+    "SMTP_PASSWORD",
+    "SMTP_PASS",
+    "MAIL_PASSWORD",
+]
+SENDER_ENV_CANDIDATES = [
+    "GMAIL_SENDER",
+    "GMAIL_USER",
+    "GMAIL_ADDRESS",
+    "SMTP_USER",
+    "EMAIL_SENDER",
+    "EMAIL_USER",
+    "SENDER_EMAIL",
+    "FROM_EMAIL",
+]
+
+
+def _first_env(candidates: list[str]) -> tuple[str | None, str]:
+    """Return (name, value) of the first non-empty env var in candidates."""
+    for name in candidates:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return name, value
+    return None, ""
+
 
 def _split_addrs(value: str | None) -> list[str]:
     if not value:
@@ -123,7 +158,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    sender = os.environ.get("GMAIL_SENDER", DEFAULT_SENDER).strip()
+    _sender_var, sender = _first_env(SENDER_ENV_CANDIDATES)
+    if not sender:
+        sender = DEFAULT_SENDER
     msg = build_message(args, sender)
     rcpts = msg._envelope_rcpts  # type: ignore[attr-defined]
 
@@ -135,16 +172,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Attachments: {len(args.attach or [])}")
         return 0
 
-    app_password = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+    pw_var, app_password = _first_env(PASSWORD_ENV_CANDIDATES)
     if not app_password:
         print(
-            "error: GMAIL_APP_PASSWORD is not set in the environment.\n"
+            "error: no Gmail App Password found in the environment.\n"
+            "Looked for: " + ", ".join(PASSWORD_ENV_CANDIDATES) + "\n"
             "Generate a 16-char App Password for the sender account at\n"
             "  https://myaccount.google.com/apppasswords\n"
             "then set it as the GMAIL_APP_PASSWORD environment secret.",
             file=sys.stderr,
         )
         return 3
+    print(f"using credential from ${pw_var}", file=sys.stderr)
 
     context = ssl.create_default_context()
     try:

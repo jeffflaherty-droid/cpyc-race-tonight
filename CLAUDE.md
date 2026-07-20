@@ -25,15 +25,19 @@ make send-dry SUBJECT="..." BODY="..."   # preview, no send
 
 If `--to`/`TO` is omitted, it defaults to `jeffflaherty@gmail.com`.
 
-**Credentials (already expected in the environment):**
-- `GMAIL_APP_PASSWORD` — 16-char Google App Password for the sender. Required.
-- `GMAIL_SENDER` — optional override of the From address
-  (defaults to `flahertyjeff6@gmail.com`).
+**Credentials (auto-detected from the environment):**
+The script reads the App Password from the **first** of these env vars that is
+set, so it works with an existing secret whatever it's named:
+`GMAIL_APP_PASSWORD`, `GMAIL_PASSWORD`, `GMAIL_PASS`, `EMAIL_APP_PASSWORD`,
+`EMAIL_PASSWORD`, `EMAIL_PASS`, `SMTP_APP_PASSWORD`, `SMTP_PASSWORD`,
+`SMTP_PASS`, `MAIL_PASSWORD`. The From address is likewise auto-detected from
+`GMAIL_SENDER`/`GMAIL_USER`/`SMTP_USER`/… (default `flahertyjeff6@gmail.com`).
 
-The password is **never** stored in the repo; the script reads it from the
-environment at runtime. If `GMAIL_APP_PASSWORD` is missing, the script exits
-with code 3 and prints setup instructions — relay those to the user rather
-than falling back to a draft.
+The password is **never** stored in the repo. If none of those vars is set,
+the script exits with code 3 and prints setup instructions — relay those to
+the user rather than falling back to a draft. If you don't know which name the
+existing automation uses, just set `GMAIL_APP_PASSWORD` and it will be picked
+up.
 
 **Default recipient:** if the user says "send it to me" without an address,
 use `jeffflaherty@gmail.com`.
