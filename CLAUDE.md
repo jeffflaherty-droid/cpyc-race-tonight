@@ -2,6 +2,15 @@
 
 ## Sending email — "send from Gmail"
 
+**IMPORTANT — cloud vs desktop:** cloud sessions (claude.ai/code) **block
+outbound SMTP** (only HTTPS-via-proxy egress is allowed), so
+`scripts/send_gmail.py` will hang at the connection step there — do NOT
+attempt it in a cloud session. In a cloud session, instead create a **Gmail
+draft** via the Gmail connector addressed to the recipient and tell the user
+to press Send — that flow is proven to work. The real SMTP send below works
+in **desktop/local** sessions, where the network is open and the user's
+`.env` (see the perx project folder) holds `SMTP_PASSWORD`.
+
 When the user says **"send an email from Gmail"** (or "send from gmail", "email
 this to me", etc.), send a **real email** using the reusable sender script.
 Do **not** just create a Gmail draft, and do not re-investigate how sending
