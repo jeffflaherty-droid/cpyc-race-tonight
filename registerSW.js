@@ -10,7 +10,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register(
-        '/cpyc-race-tonight/sw.js?v=20260906c',
+        '/cpyc-race-tonight/sw.js?v=20260906d',
         { scope: '/cpyc-race-tonight/' }
       );
       await registration.update();
