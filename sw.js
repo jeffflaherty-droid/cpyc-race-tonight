@@ -1,2 +1,74 @@
-/* planner-update-20260906b */
-if(!self.define){let e,s={};const n=(n,t)=>(n=new URL(n+".js",t).href,s[n]||new Promise(s=>{if("document"in self){const e=document.createElement("script");e.src=n,e.onload=s,document.head.appendChild(e)}else e=n,importScripts(n),s()}).then(()=>{let e=s[n];if(!e)throw new Error(`Module ${n} didn’t register its module`);return e}));self.define=(t,i)=>{const a=e||("document"in self?document.currentScript.src:"")||location.href;if(s[a])return;let o={};const c=e=>n(e,a),r={module:{uri:a},exports:o,require:c};s[a]=Promise.all(t.map(e=>r[e]||c(e))).then(e=>(i(...e),o))}}define(["./workbox-58bd4dca"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"registerSW.js",revision:"planner-update-20260906b"},{url:"index.html",revision:"7871f305931cafbc02ba128fdefb9b1a"},{url:"icons.svg",revision:"3b4fcfcf393eca4d264dca4a4663bc37"},{url:"icon-512.png",revision:"0c801dffb55cfc35db95ba00c7fc86c4"},{url:"icon-192.png",revision:"ae970a211fc2fad50880f2c0c3ba28c7"},{url:"favicon.svg",revision:"7e840862161341271697daa99a40d76b"},{url:"assets/index-D0jg6nnc.js",revision:"burlington-20260906"},{url:"assets/index-BbG0sm9Y.css",revision:null},{url:"manifest.webmanifest",revision:"d3265007e28ba79783e9597fd6df7112"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html"))),e.registerRoute(/^https:\/\/(tile\.openstreetmap\.org|tiles\.openseamap\.org)\//,new e.CacheFirst({cacheName:"map-tiles",plugins:[new e.ExpirationPlugin({maxEntries:3e3,maxAgeSeconds:2592e3}),new e.CacheableResponsePlugin({statuses:[0,200]})]}),"GET"),e.registerRoute(/^https:\/\/gis\.charttools\.noaa\.gov\//,new e.CacheFirst({cacheName:"noaa-tiles",plugins:[new e.ExpirationPlugin({maxEntries:12e3,maxAgeSeconds:2592e3}),new e.CacheableResponsePlugin({statuses:[0,200]})]}),"GET"),e.registerRoute(/^https:\/\/gis\.charttools\.noaa\.gov\/.*GetFeatureInfo/,new e.NetworkFirst({cacheName:"noaa-depth",plugins:[new e.ExpirationPlugin({maxEntries:500,maxAgeSeconds:604800}),new e.CacheableResponsePlugin({statuses:[0,200]})]}),"GET"),e.registerRoute(/^https:\/\/(digital\.weather\.gov|tilecache\.rainviewer\.com)\//,new e.NetworkFirst({cacheName:"weather-tiles",plugins:[new e.ExpirationPlugin({maxEntries:200,maxAgeSeconds:3600}),new e.CacheableResponsePlugin({statuses:[0,200]})]}),"GET")});
+const SHELL_CACHE = "planner-shell-20260906c";
+const TILE_CACHE = "planner-map-tiles";
+const SHELL_FILES = [
+  "/cpyc-race-tonight/",
+  "/cpyc-race-tonight/index.html",
+  "/cpyc-race-tonight/registerSW.js",
+  "/cpyc-race-tonight/plan-offline.js?v=20260906c",
+  "/cpyc-race-tonight/assets/index-D0jg6nnc.js",
+  "/cpyc-race-tonight/assets/index-BbG0sm9Y.css",
+];
+
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(SHELL_CACHE).then((cache) =>
+      Promise.all(SHELL_FILES.map((url) =>
+        fetch(url, { cache: "reload" }).then((response) => {
+          if (response.ok) return cache.put(url, response);
+        }),
+      )),
+    ),
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names
+        .filter((name) =>
+          (name.startsWith("workbox-precache") || name.startsWith("planner-shell-")) &&
+          name !== SHELL_CACHE,
+        )
+        .map((name) => caches.delete(name))),
+    ).then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  const isTile =
+    url.hostname === "tile.openstreetmap.org" ||
+    url.hostname === "tiles.openseamap.org" ||
+    url.hostname === "gis.charttools.noaa.gov";
+
+  if (isTile) {
+    event.respondWith(
+      caches.open(TILE_CACHE).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        if (cached) return cached;
+        const response = await fetch(event.request);
+        if (response.ok || response.type === "opaque") cache.put(event.request, response.clone());
+        return response;
+      }),
+    );
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request, { cache: "reload" })
+        .then((response) => {
+          if (response.ok) caches.open(SHELL_CACHE).then((cache) => cache.put("/cpyc-race-tonight/index.html", response.clone()));
+          return response;
+        })
+        .catch(() => caches.match("/cpyc-race-tonight/index.html")),
+    );
+    return;
+  }
+
+  if (url.origin === self.location.origin) {
+    event.respondWith(fetch(event.request, { cache: "reload" }).catch(() => caches.match(event.request)));
+  }
+});
