@@ -1,10 +1,10 @@
-const SHELL_CACHE = "planner-shell-20260906c";
+const SHELL_CACHE = "planner-shell-20260906d";
 const TILE_CACHE = "planner-map-tiles";
 const SHELL_FILES = [
   "/cpyc-race-tonight/",
   "/cpyc-race-tonight/index.html",
   "/cpyc-race-tonight/registerSW.js",
-  "/cpyc-race-tonight/plan-offline.js?v=20260906c",
+  "/cpyc-race-tonight/plan-offline.js?v=20260906d",
   "/cpyc-race-tonight/assets/index-D0jg6nnc.js",
   "/cpyc-race-tonight/assets/index-BbG0sm9Y.css",
 ];
