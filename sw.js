@@ -1,10 +1,10 @@
-const SHELL_CACHE = "planner-shell-20260906d";
+const SHELL_CACHE = "planner-shell-20260906e";
 const TILE_CACHE = "planner-map-tiles";
 const SHELL_FILES = [
   "/cpyc-race-tonight/",
   "/cpyc-race-tonight/index.html",
   "/cpyc-race-tonight/registerSW.js",
-  "/cpyc-race-tonight/plan-offline.js?v=20260906d",
+  "/cpyc-race-tonight/plan-offline.js?v=20260906e",
   "/cpyc-race-tonight/assets/index-D0jg6nnc.js",
   "/cpyc-race-tonight/assets/index-BbG0sm9Y.css",
 ];
@@ -49,7 +49,9 @@ self.addEventListener("fetch", (event) => {
         const cached = await cache.match(event.request);
         if (cached) return cached;
         const response = await fetch(event.request);
-        if (response.ok || response.type === "opaque") cache.put(event.request, response.clone());
+        if (response.ok || response.type === "opaque") {
+          await cache.put(event.request, response.clone());
+        }
         return response;
       }),
     );
@@ -60,7 +62,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request, { cache: "reload" })
         .then((response) => {
-          if (response.ok) caches.open(SHELL_CACHE).then((cache) => cache.put("/cpyc-race-tonight/index.html", response.clone()));
+          if (response.ok) {
+            caches.open(SHELL_CACHE).then((cache) =>
+              cache.put("/cpyc-race-tonight/index.html", response.clone()),
+            );
+          }
           return response;
         })
         .catch(() => caches.match("/cpyc-race-tonight/index.html")),
@@ -69,6 +75,8 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.origin === self.location.origin) {
-    event.respondWith(fetch(event.request, { cache: "reload" }).catch(() => caches.match(event.request)));
+    event.respondWith(
+      fetch(event.request, { cache: "reload" }).catch(() => caches.match(event.request)),
+    );
   }
 });
