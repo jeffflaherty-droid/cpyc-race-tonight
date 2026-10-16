@@ -30,3 +30,5 @@ body:has(.leaflet-control-layers-expanded) .safe-fullscreen-toggle {
 .ais-control a{color:#2dd1ff;display:block;padding:5px 0}
 .ais-vessel span{display:block;color:#df80ff;font-size:23px;text-align:center;line-height:24px;text-shadow:0 1px 3px #000;transform-origin:center}
 body:has(.leaflet-control-layers-expanded) .ais-control{visibility:hidden}
+
+.marine-vessel-fab{text-decoration:none;font-size:23px}.safe-fullscreen-mode .marine-vessel-fab{display:flex}
