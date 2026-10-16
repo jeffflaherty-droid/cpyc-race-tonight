@@ -1,4 +1,4 @@
-const SHELL_CACHE = "planner-shell-20261016b";
+const SHELL_CACHE = "planner-shell-20261016c";
 const TILE_CACHE = "planner-map-tiles";
 const SHELL_FILES = [
   "/cpyc-race-tonight/ais-config.js",
