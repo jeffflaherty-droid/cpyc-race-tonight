@@ -20,3 +20,13 @@ body:has(.leaflet-control-layers-expanded) .safe-fullscreen-toggle {
     overflow-y: auto;
   }
 }
+
+/* AIS stays compact and only appears on SAFE. */
+.ais-control{display:none;background:#0a0e14eb;border:1px solid #30485c;border-radius:8px;color:#e2edf5;padding:8px 10px;font:12px/1.4 system-ui;max-width:220px;margin-bottom:65px!important}
+.safe-chart-mode .ais-control{display:block}
+.ais-control label{display:flex;align-items:center;gap:5px;font-weight:700;min-height:30px;cursor:pointer}
+.ais-control input{width:18px;height:18px}
+.ais-status{font-size:11px;color:#adc4d3;margin:3px 0;white-space:normal}
+.ais-control a{color:#2dd1ff;display:block;padding:5px 0}
+.ais-vessel span{display:block;color:#df80ff;font-size:23px;text-align:center;line-height:24px;text-shadow:0 1px 3px #000;transform-origin:center}
+body:has(.leaflet-control-layers-expanded) .ais-control{visibility:hidden}
