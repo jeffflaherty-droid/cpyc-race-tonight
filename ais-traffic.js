@@ -4,6 +4,16 @@
   window.CPYC_AIS = {
     mount(map, L) {
       const group = L.layerGroup();
+      const zoomOut = document.createElement('button');
+      zoomOut.type = 'button';
+      zoomOut.className = 'map-zoom-out-left';
+      zoomOut.textContent = '−';
+      zoomOut.setAttribute('aria-label', 'Zoom out');
+      zoomOut.title = 'Zoom out';
+      L.DomEvent.disableClickPropagation(zoomOut);
+      L.DomEvent.disableScrollPropagation(zoomOut);
+      zoomOut.addEventListener('click', () => map.zoomOut());
+      map.getContainer().appendChild(zoomOut);
       const markers = new Map();
       let enabled = false, source = null, timer = null, refresh = null, lastUpdate = 0;
       const control = L.control({ position: 'bottomleft' });
@@ -96,7 +106,7 @@
       window.addEventListener('online', online);
       map.on('moveend', moved);
       updateLink();
-      return () => { disconnect(); clearInterval(timer); clearTimeout(refresh); window.removeEventListener('online', online); map.off('moveend', moved); control.remove(); group.remove(); };
+      return () => { disconnect(); clearInterval(timer); clearTimeout(refresh); window.removeEventListener('online', online); map.off('moveend', moved); control.remove(); group.remove(); zoomOut.remove(); };
     }
   };
 })();
