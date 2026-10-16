@@ -35,7 +35,7 @@
       control.onAdd = () => container;
       L.DomEvent.disableClickPropagation(container);
       L.DomEvent.disableScrollPropagation(container);
-      control.addTo(map);
+      // Keep the large AIS setup panel off the map; use the MarineTraffic shortcut.
       function updateLink() {
         const c = map.getCenter();
         link.href = `https://www.marinetraffic.com/en/ais/home/centerx:${c.lng.toFixed(4)}/centery:${c.lat.toFixed(4)}/zoom:${Math.min(16, map.getZoom())}`;
